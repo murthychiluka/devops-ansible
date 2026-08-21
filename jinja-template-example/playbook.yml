@@ -1,0 +1,30 @@
+---
+- name: Configure Nginx on AWS EC2
+  hosts: webservers
+  become: yes
+
+  vars:
+    app_port: 5000
+    server_name: myapp.example.com
+
+  tasks:
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+
+    - name: Generate Nginx configuration from Jinja2 template
+      template:
+        src: nginx.conf.j2
+        dest: /etc/nginx/sites-available/myapp.conf
+      notify:
+        - Restart Nginx
+
+  handlers:
+
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted
